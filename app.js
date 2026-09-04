@@ -115,7 +115,7 @@ function go(){
   q.style.transform='translateY(-40px)';q.style.opacity='0';
   setTimeout(()=>{
     q.style.display='none';
-    document.getElementById('app').style.display='block';
+    document.getElementById('app').style.display='flex';
     renderDNA();renderFeeds();buildToggles();updateFcount();
     window.scrollTo(0,0);
   },380);
@@ -132,10 +132,21 @@ function renderDNA(){
   DNA.temas.forEach(t=>{ if(t!=='todos'&&TAGS[t]) push(TAGS[t].lb, t); });
   if(DNA.temas.includes('todos')) push('Todos os temas',null,'spark');
   const seen=new Set(); const uniq=items.filter(i=>{ if(seen.has(i.label))return false; seen.add(i.label); return true; });
-  document.getElementById('dna-strip').innerHTML='<span class="dl">Seu perfil</span>'+uniq.map(i=>
-    `<span class="chip ${i.cls}">${i.ic?`<span class="chip-ic">${i.ic}</span>`:'<i></i>'}${i.label}</span>`
-  ).join('');
+  dnaItems=uniq; dnaExpanded=false; paintDNA();
 }
+let dnaItems=[], dnaExpanded=false;
+function paintDNA(){
+  const el=document.getElementById('dna-strip'); if(!el) return;
+  const n=dnaItems.length;
+  const tags=dnaItems.map(i=>`<span class="dtag ${i.cls}"><i></i>${i.label}</span>`).join('');
+  // gatilho central: fica oculto por padrão e abre ao toque/clique
+  el.classList.toggle('open', dnaExpanded);
+  el.innerHTML=`<button class="dna-toggle" onclick="toggleDNA()" aria-expanded="${dnaExpanded}">`
+    +`<span class="dl">Seu perfil</span><span class="dna-n">${n}</span>`
+    +`<svg class="dna-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>`
+    +`<div class="dna-panel"><div class="dtags">${tags}</div></div>`;
+}
+function toggleDNA(){ dnaExpanded=!dnaExpanded; paintDNA(); }
 
 /* ================= MATCH / CARDS ================= */
 function score(card){ let s=0; card.tags.forEach(t=>{ if(active.has(t))s++; }); return s; }
